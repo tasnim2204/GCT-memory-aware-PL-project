@@ -1,8 +1,8 @@
 //Test file for memory track
 
-@memory let x = 10;
+//@memory let x = 10;
 
-func compute(int8 a, float16 b) {
+func compute(a, b) {
     if (a >= b) {
         return a + 3.14;
     }

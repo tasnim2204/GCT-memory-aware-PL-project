@@ -13,6 +13,19 @@ tests = [
     ("operacion incompleta", "print(2 + );"),
     ("sobra un parentesis", "print(3));"),
     ("caracter no permitido", "let a = 3$;"),
+        # --- multi-line tests: verify line numbers are correct ---
+    ("multilinea: error en linea 3", "let a = 3;\nlet b = 5;\nlet c = ;"),
+    ("multilinea: error en linea 5", "let a = 3;\nlet b = 5;\nlet c = 7;\nlet d = 9;\nlet e = ;"),
+    ("multilinea: llave sin cerrar", "func f() {\n  let a = 3;\nprint(a);"),
+
+    # --- invalid tests for YOUR rules ---
+    ("func sin cerrar parentesis", "func f(a, b {\n  return a;\n}"),
+    ("if sin parentesis", "if a > b {\n  print(1);\n}"),
+    ("while sin condicion", "while {\n  print(1);\n}"),
+    ("return sin punto y coma", "func f() {\n  return 5\n}"),
+    ("@memory sin parentesis", "@memory 40kb\nfunc f() {\n  print(1);\n}"),
+    ("@memory sin cerrar parentesis", "@memory(40kb\nfunc f() {\n  print(1);\n}"),
+    ("func sin llave de cierre", "func f() {\n  let a = 3;\n"),
 ]
 
 # cuenta las pruebas q detectaron el error.
