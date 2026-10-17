@@ -1,0 +1,10 @@
+//Test file for memory track
+
+@memory let x = 10;
+
+func compute(int8 a, float16 b) {
+    if (a >= b) {
+        return a + 3.14;
+    }
+    print("Done");
+}
