@@ -1,0 +1,58 @@
+// Este file es para probar las reglas basicas del core parser
+// q estamos trabajando en parserrules.py.
+//
+// Incluye declaraciones con let, asignaciones, numeros enteros,
+// decimales, strings, booleanos, operaciones aritmeticas,
+// comparaciones, parentesis y print.
+//
+// El lexer identifica los tokens de este archivo y el parser
+// revisa si estan organizados segun las reglas q definimos.
+// Por ejemplo, una declaracion debe tener:
+// let + nombre de variable + = + expresion + ;
+//
+// Todas las instrucciones de este archivo estan escritas para
+// ser aceptadas. Al correr la prueba, esperamos obtener su
+// estructura sin errores lexicos ni de sintaxis.
+// El parser no calcula las operaciones ni ejecuta los prints.
+//
+// Esta prueba solo cubre estas reglas basicas. No prueba funciones,
+// loops, condiciones if/else ni las reglas de Memory-Aware.
+// Tambien necesitamos pruebas separadas con errores intencionales
+// para verificar q el parser rechace instrucciones incorrectas.
+
+
+let a = 3;
+let pi = 3.14;
+let ready = true;
+let name = "hola";
+
+// prueba cambiar el valor de una variable
+a = a + 2;
+
+// prueba print con variables y texto
+print(a);
+print(pi);
+print(ready);
+print(name);
+print("hola");
+
+// prueba operadores aritmeticos
+print(10 - 3);
+print(2 + 3 * 4);
+print(20 / 4);
+print(17 % 5);
+
+// prueba parentesis para cambiar el orden
+print((2 + 3) * 4);
+
+// prueba comparaciones
+print(3 == 3);
+print(3 != 4);
+print(2 < 5);
+print(5 > 2);
+print(5 <= 5);
+print(5 >= 3);
+
+// prueba ambos valores booleanos
+print(true);
+print(false);
