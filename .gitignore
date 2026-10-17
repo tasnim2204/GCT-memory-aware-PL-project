@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.pyo
+parser.out
+parsetab.py
+venv_gct/
+.venv/
+bad.uedge
