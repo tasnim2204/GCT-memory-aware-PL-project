@@ -22,8 +22,8 @@ try:
 
     # el parser revisa el codigo y devuelve su estructura.
     result = parser.parse(source, lexer=lexer)
-
     # muestra el resultado organizado en varias lineas.
+    print("Parser exitoso")
     pprint(result, width=80)
 
 except FileNotFoundError:

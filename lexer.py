@@ -7,8 +7,7 @@ tokens = (
     'PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'MODULO',
     'EQUAL', 'NOTEQ', 'GREATERTHAN', 'LESSTHAN', 'LESSEQ', 'GREATEREQ',
     'LPAREN', 'RPAREN', 'LBRACE', 'RBRACE', 'COMMA', 'SEMICOLON', 'ASSIGN',
-    'MEM_ANNOTATION',
-    'MEM_KEYWORD', 'PRECISION_TYPE'
+    'MEM_ANNOTATION'
 )
 
 
@@ -24,14 +23,6 @@ reserved = {
     'print':  'PRINT',
     'true':   'TRUE',
     'false':  'FALSE'
-}
-
-mem_keywords = {
-    'alloc', 'free', 'deref', 'ref', 'gc', 'null', 'void'
-}
-
-precision_types = {
-    'int8', 'float16'
 }
 
 
@@ -54,11 +45,6 @@ def t_IDENTIFIER(t):
     # si es una palabra reservada, cambia el tipo del token.
     if t.value in reserved:
         t.type = reserved[t.value]
-    elif t.value in mem_keywords:
-        t.type = 'MEM_KEYWORD'
-    elif t.value in precision_types:
-        t.type = 'PRECISION_TYPE'
-
     return t
 
 

@@ -31,12 +31,18 @@ def p_statements_many(p):
     p[0] = p[1] + [p[2]]
 
 
-# por ahora reconocemos estos tres tipos de instrucciones.
-# despues conectamos aqui las otras reglas del equipo.
+# reconocemos estos diez tipos de instrucciones.
 def p_statement(p):
     '''statement : declaration
                  | assignment
-                 | print_statement'''
+                 | print_statement
+                 | func_decl
+                 | annotated_func
+                 | if_statement
+                 | while_statement
+                 | for_statement
+                 | return_statement
+                 | call_statement'''
     p[0] = p[1]
 
 
@@ -136,6 +142,104 @@ def p_expression_parentheses(p):
     # conserva la expresion q esta dentro.
     p[0] = p[2]
 
+# ---- memory annotation + function declaration ----
+def p_mem_annotation(p):
+    '''mem_annotation : MEM_ANNOTATION LPAREN INTEGER IDENTIFIER RPAREN
+                      | MEM_ANNOTATION LPAREN INTEGER RPAREN'''
+    unit = p[4] if len(p) == 6 else None
+    p[0] = ('mem_annotation', p[3], unit)
+
+
+def p_annotated_func(p):
+    'annotated_func : mem_annotation func_decl'
+    p[0] = ('annotated_func', p[1], p[2])
+
+
+def p_func_decl(p):
+    'func_decl : FUNC IDENTIFIER LPAREN param_list_opt RPAREN LBRACE statements RBRACE'
+    p[0] = ('func', p[2], p[4], p[7])
+
+
+def p_param_list_opt_empty(p):
+    'param_list_opt : '
+    p[0] = []
+
+
+def p_param_list_opt_nonempty(p):
+    'param_list_opt : param_list'
+    p[0] = p[1]
+
+
+def p_param_list_one(p):
+    'param_list : IDENTIFIER'
+    p[0] = [p[1]]
+
+
+def p_param_list_many(p):
+    'param_list : param_list COMMA IDENTIFIER'
+    p[0] = p[1] + [p[3]]
+
+
+# ---- if / else ----
+def p_if_statement(p):
+    '''if_statement : IF LPAREN expression RPAREN LBRACE statements RBRACE
+                    | IF LPAREN expression RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE'''
+    if len(p) == 8:
+        p[0] = ('if', p[3], p[6], None)
+    else:
+        p[0] = ('if', p[3], p[6], p[10])
+
+
+# ---- while ----
+def p_while_statement(p):
+    'while_statement : WHILE LPAREN expression RPAREN LBRACE statements RBRACE'
+    p[0] = ('while', p[3], p[6])
+
+
+# ---- for (per Track Guide: for let i = 0; i < 5; i = i + 1 { ... }) ----
+def p_for_statement(p):
+    'for_statement : FOR LET IDENTIFIER ASSIGN expression SEMICOLON expression SEMICOLON IDENTIFIER ASSIGN expression LBRACE statements RBRACE'
+    init = ('declaration', p[3], p[5])
+    update = ('assignment', p[9], p[11])
+    p[0] = ('for', init, p[7], update, p[13])
+
+
+# ---- return ----
+def p_return_statement(p):
+    '''return_statement : RETURN expression SEMICOLON
+                        | RETURN SEMICOLON'''
+    p[0] = ('return', p[2] if len(p) == 4 else None)
+
+
+# ---- function call as statement ----
+def p_call_statement(p):
+    'call_statement : IDENTIFIER LPAREN arg_list_opt RPAREN SEMICOLON'
+    p[0] = ('call', p[1], p[3])
+
+
+def p_arg_list_opt_empty(p):
+    'arg_list_opt : '
+    p[0] = []
+
+
+def p_arg_list_opt_nonempty(p):
+    'arg_list_opt : arg_list'
+    p[0] = p[1]
+
+
+def p_arg_list_one(p):
+    'arg_list : expression'
+    p[0] = [p[1]]
+
+
+def p_arg_list_many(p):
+    'arg_list : arg_list COMMA expression'
+    p[0] = p[1] + [p[3]]
+
+# ---- function call used as an expression, e.g. array(int, 1000) ----
+def p_expression_call(p):
+    'expression : IDENTIFIER LPAREN arg_list_opt RPAREN'
+    p[0] = ('call', p[1], p[3])
 
 # se llama cuando los tokens no siguen las reglas.
 def p_error(p):
