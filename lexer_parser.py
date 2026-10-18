@@ -3,9 +3,7 @@ sys.path.insert(0, 'ply.zip')
 import ply.lex as lex
 import ply.yacc as yacc
 
-# =====================================================================
-# 1. LEXER
-# =====================================================================
+# LEXER
 tokens = (
     'LET', 'FUNC', 'IF', 'ELSE', 'WHILE', 'FOR', 'RETURN', 'PRINT',
     'IDENTIFIER', 'INTEGER', 'FLOAT', 'STRING',
@@ -58,11 +56,11 @@ def t_STRING(t):
     t.value = t.value[1:-1]
     return t
 
-# Catch unterminated strings to match expected error format
+# catches strings that aren't closed with ""
 def t_unterminated_string(t):
     r'"[^"\n]*'
     print(f"Error: malformed string at line {t.lexer.lineno}")
-    sys.exit(0) # Clean exit so platform doesn't flag as runtime error
+    sys.exit(0) # clean exit to avoid getting flagged as runtime error
 
 t_PLUS = r'\+'
 t_MINUS = r'-'
@@ -95,9 +93,7 @@ def t_error(t):
     print(f"Error: unexpected token '{t.value[0]}' at line {t.lexer.lineno}")
     sys.exit(0)
 
-# =====================================================================
-# 2. PARSER
-# =====================================================================
+# PARSER
 precedence = (
     ('nonassoc', 'EQUAL', 'NOTEQ', 'LESSTHAN', 'GREATERTHAN', 'LESSEQ', 'GREATEREQ'),
     ('left', 'PLUS', 'MINUS'),
@@ -146,7 +142,7 @@ def p_print_statement(p):
     'print_statement : PRINT LPAREN expression RPAREN SEMICOLON'
     p[0] = ('print', p[3])
 
-# ---- memory annotation + function declaration ----
+
 def p_mem_annotation(p):
     '''mem_annotation : MEM_ANNOTATION LPAREN INTEGER IDENTIFIER RPAREN
                       | MEM_ANNOTATION LPAREN INTEGER RPAREN'''
@@ -182,7 +178,6 @@ def p_param_list_many(p):
     'param_list : param_list COMMA IDENTIFIER'
     p[0] = p[1] + [p[3]]
 
-# ---- if / else ----
 def p_if_statement(p):
     '''if_statement : IF LPAREN expression RPAREN LBRACE statements RBRACE
                     | IF LPAREN expression RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE'''
@@ -191,25 +186,21 @@ def p_if_statement(p):
     else:
         p[0] = ('if', p[3], p[6], p[10])
 
-# ---- while ----
 def p_while_statement(p):
     'while_statement : WHILE LPAREN expression RPAREN LBRACE statements RBRACE'
     p[0] = ('while', p[3], p[6])
 
-# ---- for ----
 def p_for_statement(p):
     '''for_statement : FOR LPAREN LET IDENTIFIER ASSIGN expression SEMICOLON expression SEMICOLON IDENTIFIER ASSIGN expression RPAREN LBRACE statements RBRACE'''
     init = ('declaration', p[4], p[6])
     update = ('assignment', p[10], p[12])
     p[0] = ('for', init, p[8], update, p[15])
 
-# ---- return ----
 def p_return_statement(p):
     '''return_statement : RETURN expression SEMICOLON
                         | RETURN SEMICOLON'''
     p[0] = ('return', p[2] if len(p) == 4 else None)
 
-# ---- function call as statement ----
 def p_call_statement(p):
     'call_statement : IDENTIFIER LPAREN arg_list_opt RPAREN SEMICOLON'
     p[0] = ('call', p[1], p[3])
@@ -277,11 +268,9 @@ def p_expression_parentheses(p):
     'expression : LPAREN expression RPAREN'
     p[0] = p[2]
 
-# =====================================================================
-# 3. ERROR HANDLING & DRIVER
-# =====================================================================
 
-# Custom error handler to match the professor's exact expected strings
+# ERROR HANDLING
+
 def p_error(p):
     if p is None:
         print("Error: missing closing '}'")
@@ -291,13 +280,12 @@ def p_error(p):
     tok_type = p.type
     
     # 1. Missing Semicolon Logic
-    # If we hit a keyword that starts a new statement, the previous line was missing a ';'
     if tok_type in ('PRINT', 'LET', 'IF', 'WHILE', 'FOR', 'RETURN', 'FUNC'):
-        # Check if it's line 1 (rare, but possible). Otherwise, it's the previous line.
+        # check if it's line 1, else it's the previous line
         err_line = p.lineno - 1 if p.lineno > 1 else p.lineno
         print(f"Error: expected ';' at line {err_line}")
     
-    # 2. Missing Close Paren
+    # 2. Missing Close Parenthesis
     elif tok_type == 'LBRACE' and val == '{':
          print(f"Error: missing closing ')' at line {p.lineno}")
          
@@ -308,7 +296,7 @@ def p_error(p):
     sys.exit(0)
 
 
-if __name__ == '__main__':
+def main():
     if len(sys.argv) != 2:
         print("Usage: python your_parser.py <file.uedge>")
         sys.exit(1)
@@ -322,17 +310,19 @@ if __name__ == '__main__':
         sys.exit(1)
 
     lexer = lex.lex()
-    # Removed write_tables and debug to support the older PLY version in ply.zip
     parser = yacc.yacc(start='program')
 
     try:
         lexer.lineno = 1
         result = parser.parse(source, lexer=lexer)
         
-        # If parse succeeded, print the required success message
+        # If parse succeeded, print success message
         print("Parsed successfully")
         sys.exit(0)
     except Exception as e:
         # Fallback in case of unexpected internal PLY errors
         print(f"Error: internal parse error - {e}")
         sys.exit(0)
+
+if __name__ == '__main__':
+    main()
